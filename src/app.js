@@ -21,7 +21,6 @@ app.post(`/auth`, async (req, res) => {
         accept: 'application/json',
       }
     });
-
     const token = response.data.access_token;
     const result = [];
 
@@ -31,14 +30,13 @@ app.post(`/auth`, async (req, res) => {
         Authorization: `token ${token}`
       }
     });
-
+    
     // 사용자 레포 정보 가져오기
     const repos = await axios.get(`https://api.github.com/users/${user.data.login}/repos`, {
       headers: {
         Authorization: `token ${token}`
       }
     });
-
     // 사용자 레포별 언어 & 리드미 정보 가져오기
     for await (let repo of repos.data) {
       const languageData = await axios.get(`https://api.github.com/repos/${user.data.login}/${repo.name}/languages`, {
@@ -46,15 +44,19 @@ app.post(`/auth`, async (req, res) => {
           Authorization: `token ${token}`
         }
       });
-      const readmeData = await axios.get(`https://raw.githubusercontent.com/${user.data.login}/${repo.name}/${repo.default_branch}/README.md`);
-
+      // const readmeData = await axios.get(`https://api.github.com/repos/${user.data.login}/${repo.name}/contents/README.md`, {
+      //   headers: {
+      //     Authorization: `token ${token}`
+      //   }
+      // });
+      // console.log(readmeData)
       let tmp = {};
       tmp.name = repo.name;
       tmp.owner = repo.owner;
       tmp.description = repo.description;
       tmp.url = repo.html_url;
       tmp.languages = languageData.data;
-      tmp.readme = readmeData.data;
+      //tmp.readme = readmeData.data;
       tmp.created_at = repo.created_at;
       tmp.updated_at = repo.updated_at;
 
@@ -62,7 +64,7 @@ app.post(`/auth`, async (req, res) => {
     }
 
     // 응답
-    res.status(200).json({
+    return res.status(200).json({
       user: user.data.login,
       repos: result
     });
