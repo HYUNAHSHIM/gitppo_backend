@@ -62,12 +62,13 @@ app.post(`/auth`, async (req, res) => {
 
       result.push(tmp);
     }
-
-    // 응답
-    return res.status(200).json({
+    const responseData = {
       user: user.data.login,
       repos: result
-    });
+    };
+    console.log(responseData)
+    // 응답
+    return res.status(200).json(responseData);
   } catch (err) {
     console.error(err.message);
   }
