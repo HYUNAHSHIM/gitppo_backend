@@ -12,7 +12,6 @@ app.post(`/auth`, async (req, res) => {
   try {
     const { code } = req.body;
     console.log("code: ", code);
-    console.log(process.env.CLIENT_ID)
     const response = await axios.post('https://github.com/login/oauth/access_token', {
       code, 
       client_id: "8034b9cee0aef2068649", 
@@ -48,19 +47,19 @@ app.post(`/auth`, async (req, res) => {
           Authorization: `token ${token}`
         }
       });
-      const readmeData = await axios.get(`https://api.github.com/repos/${user.data.login}/${repo.name}/contents/README.md`, {
-        headers: {
-          Authorization: `token ${token}`
-        }
-      });
-      console.log(readmeData)
+      // const readmeData = await axios.get(`https://api.github.com/repos/${user.data.login}/${repo.name}/contents/README.md`, {
+      //   headers: {
+      //     Authorization: `token ${token}`
+      //   }
+      // });
+      // console.log(readmeData)
       let tmp = {};
       tmp.name = repo.name;
       tmp.owner = repo.owner;
       tmp.description = repo.description;
       tmp.url = repo.html_url;
       tmp.languages = languageData.data;
-      tmp.readme = readmeData.data;
+      //tmp.readme = readmeData.data;
       tmp.created_at = repo.created_at;
       tmp.updated_at = repo.updated_at;
 
