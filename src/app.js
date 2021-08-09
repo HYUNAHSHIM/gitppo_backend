@@ -23,6 +23,7 @@ app.post(`/auth`, async (req, res) => {
       }
     });
     const token = response.data.access_token;
+    console.log("token: ", token)
     const result = [];
 
     // 사용자 정보 가져오기
