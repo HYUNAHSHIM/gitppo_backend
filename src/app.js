@@ -12,6 +12,7 @@ app.post(`/auth`, async (req, res) => {
   try {
     const { code } = req.body;
     console.log("code: ", code);
+    console.log(process.env.CLIENT_ID)
     const response = await axios.post('https://github.com/login/oauth/access_token', {
       code, 
       client_id: process.env.CLIENT_ID, 
