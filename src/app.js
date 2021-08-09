@@ -44,19 +44,19 @@ app.post(`/auth`, async (req, res) => {
           Authorization: `token ${token}`
         }
       });
-      // const readmeData = await axios.get(`https://api.github.com/repos/${user.data.login}/${repo.name}/contents/README.md`, {
-      //   headers: {
-      //     Authorization: `token ${token}`
-      //   }
-      // });
-      // console.log(readmeData)
+      const readmeData = await axios.get(`https://api.github.com/repos/${user.data.login}/${repo.name}/contents/README.md`, {
+        headers: {
+          Authorization: `token ${token}`
+        }
+      });
+      console.log(readmeData)
       let tmp = {};
       tmp.name = repo.name;
       tmp.owner = repo.owner;
       tmp.description = repo.description;
       tmp.url = repo.html_url;
       tmp.languages = languageData.data;
-      //tmp.readme = readmeData.data;
+      tmp.readme = readmeData.data;
       tmp.created_at = repo.created_at;
       tmp.updated_at = repo.updated_at;
 
@@ -79,6 +79,6 @@ app.use((req, res, next) => {
   res.status(404).send('Wrong Api uri');
 });
 
-app.listen(port, () => {
+app.listen(process.env.PORT || port, () => {
   console.log("Express App starts on port " + port);
 });
