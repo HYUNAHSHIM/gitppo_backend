@@ -49,7 +49,12 @@ app.post(`/auth`, async (req, res) => {
 
       let readmeData = {};
       try {
-        readmeData = await axios.get(`https://api.github.com/repos/${user.data.login}/${repo.name}/contents/README.md`, {
+        const branchData = await axios.get(`https://api.github.com/repos/${user.data.login}/${repo.name}/branches`, {
+          headers: {
+            Authorization: `token ${token}`
+          }
+        });
+        readmeData = await axios.get(`https://raw.githubusercontent.com/${user.data.login}/${repo.name}/${branchData.data[0].name}/README.md`, {
           headers: {
             Authorization: `token ${token}`
           }
@@ -61,9 +66,6 @@ app.post(`/auth`, async (req, res) => {
       } finally {
         tmp.readme = readmeData.data;
       }
-      
-      console.log("readmeData");
-      console.log("readme: ",readmeData)
       
       tmp.name = repo.name;
       tmp.owner = repo.owner;
