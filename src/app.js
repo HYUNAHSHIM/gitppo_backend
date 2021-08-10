@@ -11,7 +11,6 @@ app.use(express.json());
 app.post(`/auth`, async (req, res) => {
   try {
     const { code } = req.body;
-    console.log("code: ", code);
     const response = await axios.post('https://github.com/login/oauth/access_token', {
       code, 
       client_id: "8034b9cee0aef2068649", 
@@ -22,9 +21,7 @@ app.post(`/auth`, async (req, res) => {
         accept: 'application/json',
       }
     });
-    console.log("response: ", response)
     const token = response.data.access_token;
-    console.log("token: ", token)
     const result = [];
 
     // 사용자 정보 가져오기
@@ -42,24 +39,37 @@ app.post(`/auth`, async (req, res) => {
     });
     // 사용자 레포별 언어 & 리드미 정보 가져오기
     for await (let repo of repos.data) {
+      let tmp = {};
+      
       const languageData = await axios.get(`https://api.github.com/repos/${user.data.login}/${repo.name}/languages`, {
         headers: {
           Authorization: `token ${token}`
         }
       });
-      // const readmeData = await axios.get(`https://api.github.com/repos/${user.data.login}/${repo.name}/contents/README.md`, {
-      //   headers: {
-      //     Authorization: `token ${token}`
-      //   }
-      // });
-      // console.log(readmeData)
-      let tmp = {};
+
+      let readmeData = {};
+      try {
+        readmeData = await axios.get(`https://api.github.com/repos/${user.data.login}/${repo.name}/contents/README.md`, {
+          headers: {
+            Authorization: `token ${token}`
+          }
+        });
+      } catch (ex) {
+        if (ex.response && ex.response.status === 404) {
+          readmeData.data = "";
+        }
+      } finally {
+        tmp.readme = readmeData.data;
+      }
+      
+      console.log("readmeData");
+      console.log("readme: ",readmeData)
+      
       tmp.name = repo.name;
       tmp.owner = repo.owner;
       tmp.description = repo.description;
       tmp.url = repo.html_url;
       tmp.languages = languageData.data;
-      //tmp.readme = readmeData.data;
       tmp.created_at = repo.created_at;
       tmp.updated_at = repo.updated_at;
 
