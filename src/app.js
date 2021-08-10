@@ -46,25 +46,27 @@ app.post(`/auth`, async (req, res) => {
           Authorization: `token ${token}`
         }
       });
+      const branchData = await axios.get(`https://api.github.com/repos/${user.data.login}/${repo.name}/branches`, {
+        headers: {
+          Authorization: `token ${token}`
+        }
+      });
 
       let readmeData = {};
-      try {
-        const branchData = await axios.get(`https://api.github.com/repos/${user.data.login}/${repo.name}/branches`, {
-          headers: {
-            Authorization: `token ${token}`
+      for await (let branch of branchData.data) {
+        try {
+          readmeData = await axios.get(`https://raw.githubusercontent.com/${user.data.login}/${repo.name}/${branch.name}/README.md`, {
+            headers: {
+              Authorization: `token ${token}`
+            }
+          });
+          tmp.readme = readmeData.data;
+          break;
+        } catch (ex) {
+          if (ex.response && ex.response.status === 404) {
+            tmp.readme = ""
           }
-        });
-        readmeData = await axios.get(`https://raw.githubusercontent.com/${user.data.login}/${repo.name}/${branchData.data[0].name}/README.md`, {
-          headers: {
-            Authorization: `token ${token}`
-          }
-        });
-      } catch (ex) {
-        if (ex.response && ex.response.status === 404) {
-          readmeData.data = "";
         }
-      } finally {
-        tmp.readme = readmeData.data;
       }
       
       tmp.name = repo.name;
